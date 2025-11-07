@@ -92,6 +92,67 @@ h3 {
   outline-offset: 2px;
 }
 
+/* Metadata Styles */
+.metadata-container {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--bg);
+  border-radius: var(--radius-s);
+  font-size: 0.8rem;
+}
+
+.metadata-model {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.metadata-timestamps {
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.metadata-tokens {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.token-estimate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-s);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.token-estimate .confidence {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.confidence-high {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.confidence-medium {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.confidence-low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .iemessages {
   margin: .5rem 0 .75rem;
   font-size: .6rem;
@@ -760,4 +821,43 @@ button[type=submit]:focus-visible {
 
 .prompt-card .delete-btn:hover {
   background: var(--danger-accent);
+}
+
+/* Notes Section Styles */
+.card-notes {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+
+.notes-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.new-note {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-s);
+}
+
+.add-note-btn {
+  padding: 0.5rem 1rem;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.add-note-btn:hover {
+  background: var(--brand-accent);
 }

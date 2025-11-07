@@ -1,3 +1,112 @@
+// Metadata tracking system
+function trackModel(modelName, content) {
+  // Validation
+  if (!modelName || typeof modelName !== 'string') {
+    throw new Error('Model name must be a non-empty string');
+  }
+  if (modelName.length > 100) {
+    throw new Error('Model name cannot exceed 100 characters');
+  }
+  if (!content) {
+    throw new Error('Content is required for token estimation');
+  }
+
+  // Create metadata object
+  return {
+    model: modelName,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    tokenEstimate: estimateTokens(content, false)
+  };
+}
+
+function updateTimestamps(metadata) {
+  if (!metadata || typeof metadata !== 'object') {
+    throw new Error('Invalid metadata object');
+  }
+
+  const now = new Date();
+  const createdAt = new Date(metadata.createdAt);
+
+  if (isNaN(createdAt.getTime())) {
+    throw new Error('Invalid createdAt timestamp');
+  }
+
+  const updatedAt = now.toISOString();
+
+  // Validate updatedAt >= createdAt
+  if (now < createdAt) {
+    throw new Error('Updated timestamp cannot be earlier than creation timestamp');
+  }
+
+  return {
+    ...metadata,
+    updatedAt
+  };
+}
+
+function estimateTokens(text, isCode = false) {
+  if (typeof text !== 'string') {
+    throw new Error('Text must be a string for token estimation');
+  }
+
+  // Calculate base estimates
+  const wordCount = text.trim().split(/\s+/).length;
+  const charCount = text.length;
+
+  let min = Math.ceil(0.75 * wordCount);
+  let max = Math.ceil(0.25 * charCount);
+
+  // Apply code multiplier if needed
+  if (isCode) {
+    min = Math.ceil(min * 1.3);
+    max = Math.ceil(max * 1.3);
+  }
+
+  // Determine confidence level
+  let confidence = 'high';
+  if (max > 5000) confidence = 'low';
+  else if (max > 1000) confidence = 'medium';
+
+  return { min, max, confidence };
+}
+
+function buildMetadataDisplay(metadata) {
+  const container = document.createElement('div');
+  container.className = 'metadata-container';
+
+  // Model name
+  const modelDiv = document.createElement('div');
+  modelDiv.className = 'metadata-model';
+  modelDiv.textContent = `Model: ${metadata.model}`;
+  container.appendChild(modelDiv);
+
+  // Timestamps
+  const timestampsDiv = document.createElement('div');
+  timestampsDiv.className = 'metadata-timestamps';
+  const created = new Date(metadata.createdAt);
+  const updated = new Date(metadata.updatedAt);
+  timestampsDiv.innerHTML = `
+    <span>Created: ${created.toLocaleDateString()} ${created.toLocaleTimeString()}</span>
+    <span>Updated: ${updated.toLocaleDateString()} ${updated.toLocaleTimeString()}</span>
+  `;
+  container.appendChild(timestampsDiv);
+
+  // Token estimate
+  const tokenDiv = document.createElement('div');
+  tokenDiv.className = 'metadata-tokens';
+  const confidenceClass = `confidence-${metadata.tokenEstimate.confidence}`;
+  tokenDiv.innerHTML = `
+    <span class="token-estimate ${confidenceClass}">
+      Tokens: ${metadata.tokenEstimate.min}-${metadata.tokenEstimate.max}
+      <span class="confidence">${metadata.tokenEstimate.confidence}</span>
+    </span>
+  `;
+  container.appendChild(tokenDiv);
+
+  return container;
+}
+
 (function () {
   const STORAGE_KEY = 'promptLibrary.items.v1';
   const NOTES_KEY = 'promptNotes.v1'; // localStorage key for notes
@@ -990,5 +1099,54 @@
     document.getElementById('prompt-form').reset();
   });
 
-  displayPrompts();
+  function loadNotes(promptId) {
+    const prompts = loadPrompts();
+    const prompt = prompts.find(p => p.id === promptId);
+    return prompt && prompt.notes ? prompt.notes : [];
+  }
+
+  function saveNotes(promptId, notes) {
+    const prompts = loadPrompts();
+    const prompt = prompts.find(p => p.id === promptId);
+    if (!prompt) return;
+    prompt.notes = notes;
+    savePrompts(prompts);
+  }
+
+  function addNoteHandler(promptId) {
+    const noteInput = document.querySelector(`[data-id="${promptId}"] .new-note`);
+    const notesList = document.querySelector(`[data-id="${promptId}"] .notes-list`);
+    const noteContent = noteInput.value.trim();
+    if (!noteContent) return;
+
+    const notes = loadNotes(promptId);
+    const newNote = { id: `note-${Date.now()}`, content: noteContent };
+    notes.push(newNote);
+    saveNotes(promptId, notes);
+
+    const noteItem = document.createElement('li');
+    noteItem.textContent = newNote.content;
+    notesList.appendChild(noteItem);
+
+    noteInput.value = '';
+  }
+
+  function renderNotes(promptId) {
+    const notesList = document.querySelector(`[data-id="${promptId}"] .notes-list`);
+    const notes = loadNotes(promptId);
+    notesList.innerHTML = '';
+    notes.forEach(note => {
+      const noteItem = document.createElement('li');
+      noteItem.textContent = note.content;
+      notesList.appendChild(noteItem);
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('add-note-btn')) {
+      const promptId = event.target.closest('[data-id]').dataset.id;
+      addNoteHandler(promptId);
+      renderNotes(promptId);
+    }
+  });
 })();
