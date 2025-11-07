@@ -414,6 +414,29 @@ button[type=submit]:focus-visible {
   border: 0;
 }
 
+.rating-container {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star {
+  font-size: 1.25rem;
+  color: #ccc;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star:hover,
+.star:focus {
+  color: #ffcc00;
+}
+
+.star[aria-checked="true"] {
+  color: #ffcc00;
+}
+
 .delete-btn {
   --btn-bg: #ffffff;
   --btn-border: var(--border-strong);
@@ -566,6 +589,7 @@ button[type=submit]:focus-visible {
   word-break: break-word;
   display: -webkit-box;
   -webkit-line-clamp: 6;
+  line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -689,4 +713,51 @@ button[type=submit]:focus-visible {
   .cards {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
+}
+
+/* Prompt card styles */
+.prompt-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.prompt-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.prompt-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.prompt-card p {
+  margin: 0 0 1rem;
+  color: var(--text-soft);
+}
+
+.prompt-card .card-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.prompt-card .delete-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-s);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.prompt-card .delete-btn:hover {
+  background: var(--danger-accent);
 }

@@ -52,10 +52,8 @@
         <span id="prompt-count" class="count-badge" aria-live="polite"></span>
       </div>
       <div id="import-export-messages" class="iemessages" role="alert" aria-live="polite" hidden></div>
-      <div id="prompts-empty" class="empty-state" hidden>
-        <p>No prompts saved yet. Add your first one!</p>
-      </div>
-      <div id="prompts-list" class="cards" aria-live="polite"></div>
+      <div id="prompts-list" class="prompt-list"></div>
+      <p id="prompts-empty" class="empty-state">No prompts saved yet. Add a new prompt to get started!</p>
     </section>
   </main>
 
@@ -67,6 +65,7 @@
         <div class="prompt-meta" data-role="metadata"></div>
       </div>
       <div class="card-actions">
+        <div class="rating-container"></div>
         <button class="delete-btn" type="button" aria-label="Delete prompt">Delete</button>
       </div>
     </article>

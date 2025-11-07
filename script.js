@@ -140,28 +140,26 @@
   }
 
   function buildRatingElement(prompt) {
-    // Ensure property exists for legacy stored prompts
-    if (!('userRating' in prompt)) prompt.userRating = null;
-    const wrap = document.createElement('div');
-    wrap.className = 'rating';
-    wrap.setAttribute('role', 'radiogroup');
-    wrap.setAttribute('aria-label', `Rate ${prompt.title}`);
-    for (let i = 1; i <= MAX_STARS; i++) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'star' + (prompt.userRating >= i ? ' filled' : '');
-      btn.dataset.value = String(i);
-      btn.setAttribute('role', 'radio');
-      btn.setAttribute('aria-checked', String(prompt.userRating === i));
-      btn.setAttribute('aria-label', `${i} star${i > 1 ? 's' : ''}`);
-      btn.textContent = prompt.userRating >= i ? '★' : '☆';
-      btn.addEventListener('click', () => setRating(prompt.id, i));
-      btn.addEventListener('keydown', (e) => handleStarKey(e, prompt.id));
-      btn.addEventListener('pointerenter', () => previewHover(wrap, i));
-      btn.addEventListener('pointerleave', () => clearHover(wrap, prompt.userRating));
-      wrap.appendChild(btn);
+    const container = document.createElement('div');
+    container.className = 'rating-container';
+    container.setAttribute('role', 'radiogroup');
+    container.setAttribute('aria-label', `Rate ${prompt.title}`);
+
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('button');
+      star.className = 'star';
+      star.dataset.value = i;
+      star.setAttribute('aria-checked', prompt.userRating === i);
+      star.innerHTML = i <= (prompt.userRating || 0) ? '★' : '☆';
+
+      star.addEventListener('click', () => {
+        setRating(prompt.id, i);
+      });
+
+      container.appendChild(star);
     }
-    return wrap;
+
+    return container;
   }
 
   function updateCardRatingUI(promptId, rating) {
@@ -926,4 +924,71 @@
       fileInput.value = '';
     });
   }
+
+  function savePrompt(title, content) {
+    const prompts = loadPrompts();
+    const newPrompt = {
+      id: Date.now().toString(),
+      title,
+      content,
+      createdAt: new Date().toISOString(),
+    };
+    prompts.push(newPrompt);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
+    displayPrompts();
+  }
+
+  function displayPrompts() {
+    const prompts = loadPrompts();
+    const listEl = document.getElementById('prompts-list');
+    const emptyEl = document.getElementById('prompts-empty');
+
+    listEl.innerHTML = '';
+    if (prompts.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    prompts.forEach(prompt => {
+      const card = document.createElement('div');
+      card.className = 'prompt-card';
+
+      const titleEl = document.createElement('h3');
+      titleEl.textContent = prompt.title;
+
+      const contentEl = document.createElement('p');
+      contentEl.textContent = `${prompt.content.slice(0, 50)}...`;
+
+      const actionsEl = document.createElement('div');
+      actionsEl.className = 'card-actions';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.onclick = () => deletePrompt(prompt.id);
+
+      actionsEl.appendChild(deleteBtn);
+      card.appendChild(titleEl);
+      card.appendChild(contentEl);
+      card.appendChild(actionsEl);
+      listEl.appendChild(card);
+    });
+  }
+
+  document.getElementById('prompt-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const title = document.getElementById('prompt-title').value.trim();
+    const content = document.getElementById('prompt-content').value.trim();
+
+    if (!title || !content) {
+      alert('Both title and content are required!');
+      return;
+    }
+
+    savePrompt(title, content);
+    document.getElementById('prompt-form').reset();
+  });
+
+  displayPrompts();
 })();
