@@ -1,4 +1,4 @@
-(function() {
+(function () {
   const STORAGE_KEY = 'promptLibrary.items.v1';
   const NOTES_KEY = 'promptNotes.v1'; // localStorage key for notes
   const META_VERSION = 'v1';
@@ -22,7 +22,7 @@
       return data
         .filter(p => p && typeof p.id === 'string')
         .map(p => hydrateLegacyPrompt(p))
-        .sort((a,b) => new Date(b.metadata?.createdAt || 0) - new Date(a.metadata?.createdAt || 0));
+        .sort((a, b) => new Date(b.metadata?.createdAt || 0) - new Date(a.metadata?.createdAt || 0));
     } catch (e) {
       console.warn('Failed to parse stored prompts', e);
       return [];
@@ -153,7 +153,7 @@
       btn.dataset.value = String(i);
       btn.setAttribute('role', 'radio');
       btn.setAttribute('aria-checked', String(prompt.userRating === i));
-      btn.setAttribute('aria-label', `${i} star${i>1?'s':''}`);
+      btn.setAttribute('aria-label', `${i} star${i > 1 ? 's' : ''}`);
       btn.textContent = prompt.userRating >= i ? '★' : '☆';
       btn.addEventListener('click', () => setRating(prompt.id, i));
       btn.addEventListener('keydown', (e) => handleStarKey(e, prompt.id));
@@ -183,12 +183,12 @@
     const target = e.currentTarget;
     if (!target || !target.dataset.value) return;
     const currentVal = Number(target.dataset.value);
-    if (['ArrowRight','ArrowUp'].includes(key)) {
+    if (['ArrowRight', 'ArrowUp'].includes(key)) {
       e.preventDefault();
       const next = Math.min(MAX_STARS, currentVal + 1);
       setRating(promptId, next);
       focusStar(promptId, next);
-    } else if (['ArrowLeft','ArrowDown'].includes(key)) {
+    } else if (['ArrowLeft', 'ArrowDown'].includes(key)) {
       e.preventDefault();
       const prev = Math.max(1, currentVal - 1);
       setRating(promptId, prev);
@@ -236,7 +236,7 @@
 
     const title = trim(titleInput.value);
     const content = trim(contentInput.value);
-  const modelName = trim(modelInput.value);
+    const modelName = trim(modelInput.value);
 
     if (!title) {
       errorEl.textContent = 'Title is required.';
@@ -306,7 +306,7 @@
     const arr = Array.isArray(store[promptId]) ? store[promptId] : [];
     return arr
       .filter(n => n && typeof n.id === 'string' && typeof n.content === 'string')
-      .sort((a,b) => b.createdAt - a.createdAt);
+      .sort((a, b) => b.createdAt - a.createdAt);
   }
 
   function addNote(promptId, content) {
@@ -344,7 +344,7 @@
   }
 
   function noteId() {
-    return 'note_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,6);
+    return 'note_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
   }
 
   function buildNotesSection(promptId) {
@@ -536,7 +536,7 @@
   }
 
   function escapeHtml(str) {
-    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }[c]));
   }
 
   document.addEventListener('DOMContentLoaded', init);
@@ -621,7 +621,7 @@
     const te = meta.tokenEstimate;
     if (!te || typeof te !== 'object') throw new Error('Metadata invalid: tokenEstimate missing');
     if (typeof te.min !== 'number' || typeof te.max !== 'number') throw new Error('Metadata invalid: tokenEstimate bounds');
-    if (!['high','medium','low'].includes(te.confidence)) throw new Error('Metadata invalid: confidence');
+    if (!['high', 'medium', 'low'].includes(te.confidence)) throw new Error('Metadata invalid: confidence');
   }
 
   function looksLikeCode(text) {
@@ -688,15 +688,15 @@
   function computeStats(prompts) {
     const total = prompts.length;
     const ratings = prompts.map(p => typeof p.userRating === 'number' ? p.userRating : null).filter(Boolean);
-    const averageRating = ratings.length ? (ratings.reduce((a,b)=>a+b,0) / ratings.length) : null;
+    const averageRating = ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length) : null;
     // most used model
     const modelCounts = {};
     for (const p of prompts) {
       const m = p?.metadata?.model || 'unknown';
-      modelCounts[m] = (modelCounts[m]||0)+1;
+      modelCounts[m] = (modelCounts[m] || 0) + 1;
     }
     let mostUsedModel = null; let max = -1;
-    for (const [m,c] of Object.entries(modelCounts)) { if (c>max) { max=c; mostUsedModel=m; } }
+    for (const [m, c] of Object.entries(modelCounts)) { if (c > max) { max = c; mostUsedModel = m; } }
     return { totalPrompts: total, averageRating, mostUsedModel };
   }
 
@@ -707,7 +707,7 @@
     if (typeof p.title !== 'string') throw new Error('Prompt missing title');
     if (typeof p.content !== 'string') throw new Error('Prompt missing content');
     if (!p.metadata || typeof p.metadata !== 'object') throw new Error('Prompt missing metadata');
-    try { validateMetadata(p.metadata); } catch (e) { throw new Error('Metadata invalid for prompt '+p.id+': '+e.message); }
+    try { validateMetadata(p.metadata); } catch (e) { throw new Error('Metadata invalid for prompt ' + p.id + ': ' + e.message); }
   }
 
   /** Build export JSON object */
@@ -735,13 +735,13 @@
   function triggerDownload(obj) {
     const json = JSON.stringify(obj, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
     const a = document.createElement('a');
     a.download = `${EXPORT_FILE_BASENAME}-${ts}.json`;
     a.href = URL.createObjectURL(blob);
     document.body.appendChild(a);
     a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
 
   function exportPrompts() {
@@ -751,7 +751,7 @@
       showIEMessage('Export completed.', 'success');
     } catch (e) {
       console.error(e);
-      showIEMessage('Export failed: '+(e.message||e), 'error');
+      showIEMessage('Export failed: ' + (e.message || e), 'error');
     }
   }
 
@@ -781,7 +781,7 @@
 
     if (isModern) {
       if (typeof data.schemaVersion !== 'number') throw new Error('Missing schemaVersion');
-      if (data.schemaVersion > EXPORT_SCHEMA_VERSION) throw new Error('Export file version is newer ('+data.schemaVersion+'), update app.');
+      if (data.schemaVersion > EXPORT_SCHEMA_VERSION) throw new Error('Export file version is newer (' + data.schemaVersion + '), update app.');
       const prompts = data?.data?.prompts;
       const notes = data?.data?.notes || {};
       if (!Array.isArray(prompts)) throw new Error('data.prompts must be an array');
@@ -831,7 +831,7 @@
       // simple append
       for (const p of incoming) map.set(p.id, p);
     }
-    return Array.from(map.values()).sort((a,b) => new Date(b.metadata?.createdAt||0) - new Date(a.metadata?.createdAt||0));
+    return Array.from(map.values()).sort((a, b) => new Date(b.metadata?.createdAt || 0) - new Date(a.metadata?.createdAt || 0));
   }
 
   function askConflictStrategy(conflictCount) {
@@ -881,11 +881,11 @@
           if (!Array.isArray(arr)) continue;
           if (!Array.isArray(finalNotes[pid])) finalNotes[pid] = [];
           const noteIds = new Set(finalNotes[pid].map(n => n.id));
-            for (const n of arr) {
-              if (!n || typeof n.id !== 'string') continue;
-              if (noteIds.has(n.id)) continue; // skip duplicates
-              finalNotes[pid].push(n);
-            }
+          for (const n of arr) {
+            if (!n || typeof n.id !== 'string') continue;
+            if (noteIds.has(n.id)) continue; // skip duplicates
+            finalNotes[pid].push(n);
+          }
         }
         savePrompts(mergedPrompts);
         saveNotesStore(finalNotes);
@@ -895,7 +895,7 @@
         console.error('Import error', e);
         rollbackFromBackup();
         render(loadPrompts());
-        showIEMessage('Import failed: '+(e.message||e), 'error');
+        showIEMessage('Import failed: ' + (e.message || e), 'error');
       }
     };
     reader.onerror = () => {
@@ -909,9 +909,9 @@
     if (!host) return;
     host.textContent = msg;
     host.hidden = false;
-    host.className = 'iemessages ' + (type||'');
+    host.className = 'iemessages ' + (type || '');
     clearTimeout(showIEMessage._t);
-    showIEMessage._t = setTimeout(()=>{ host.hidden = true; }, 6000);
+    showIEMessage._t = setTimeout(() => { host.hidden = true; }, 6000);
   }
 
   function setupImportExport() {
